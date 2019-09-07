@@ -1,0 +1,300 @@
+---
+title: "factorial2x2: Design and Analysis of a 2x2 Factorial Trial with a Time-to-Event Endpoint"
+author: "Eric Leifer and James Troendle"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{factorial2x2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Motivation for the factorial2x2 package
+
+The two-by-two factorial design  randomizes subjects to receive treatment either *A* alone, treatment *B* alone, both treatment *A* and *B* *(AB)*, or neither treatment *(C)*.     When the combined effect of *A* and *B* is less than the sum of the separate *A* and *B* effects, called *subadditivity*, there can be low power to detect the *A* effect using an overall  test which compares the *A* and *AB* groups to the *C* and *B* groups.  In such an instance, simple effect tests such as *A* vs. *C* and *AB* vs. *C* may be useful since they are not affected by subadditivity.  However, the simple effect tests  can  have low power since they use half the subjects of the overall test.
+
+Consider the *A* research question which examines the benefit of *A* either by itself, or in combination with *B*. To exploit the sample size advantage of the overall test and robustness to subadditivity of the simple tests,
+various combinations of overall and simple effects tests may be considered.
+We consider three multiple testing procedures:
+
+1.  The **2/3-1/3 procedure** which allocates 2/3 of the significance level to testing the overall *A* effect and 1/3 of the significance level to the simple *AB* effect.
+
+2. The **1/3-1/3-1/3 procedure** which allocates 1/3 of the significance level to testing each of the overall *A*, simple *A*, and simple *AB* effects.
+
+3.  The **1/2-1/2 procedure** which allocates 1/2 of the significance level to testing the simple *A* effect and 1/2 to the simple *AB* effect.
+
+
+`factorial2x2` has two main R functions:  `fac2x2analyze` computes the hazard ratio, 95% confidence interval, and nominal p-value for the overall *A*, simple *A*, and simple *AB* hazard effects.  It  also performs signficance testing
+for the three multiple testing procedures.
+`fac2x2design` calculates the power for the overall and simple tests as well as the three multiple testing procedures.
+
+## Examples using the *fac2x2analyze* function 
+We present two examples using `fac2x2analyze`.  
+
+### Example 1
+This example uses the simulated data in `simdata` which 
+is a 4600-by-9 matrix which is loaded with the `factorial2x2` package.  `simdata` corresponds to a simulated 2x2 factorial clinical trial of 4600 subjects. 
+Subjects are simultaneously randomized to receive either treatment *A* or placebo as well as either treatment *B* or placebo.
+We are interested in testing and estimating the overall *A* effect, the simple *A* effect, and the simple *AB* effect.  We are also interested in the three multiple testing procedures described in the previous section.  Below is the R code and output.  Based on the below results, the 2/3-1/3 procedure detects the simple *AB* effect, the 1/3-1/3-1/3 procedure detects the simple *A* and *AB* effects, and the 1/2-1/2 procedure detects the simple *A* and simple *AB* effects. Note that the examples which are provided in the `factorial2x2` manual use the 100-by-9 submatrix `simdat` of `simdata` for very rapid computation. `simdata` is also loaded with the `factorial2x2` package.
+
+```{r, eval = F, echo = F, results = "hide"}
+# When I use knitr to run this whole file, I need to 
+# "require" all the packages that are needed to run the code
+# since knitr uses a new environment.  This is in contrast to
+# running the code chunks separately which use all of the packages
+# which are listed in the factorial2x2 package's DESCRIPTION file
+# on the DEPENDS line
+
+# require(factorial2x2)
+# require(survival)
+# require(mvtnorm)
+```
+
+```{r, eval =   F}
+time <- simdata[, 'time']    # follow-up time
+event <- simdata[, 'event']  # event indicator
+indA <- simdata[, 'indA']    # treatment A indicator
+indB <- simdata[, 'indB']    # treatment B indicator
+fac2x2analyze(time, event, indA, indB, covmat, alpha = 0.05, dig = 3, niter = 5)
+# simdata[, 6:10] corresponds to the baseline covariates which include
+# a history of cardiovascular disease (yes/no) and four indicator
+# variables which correspond to which of 5 clinical centers enrolled each of the participants
+$hrA  
+[1] 0.8895135          # overall A effect hazard ratio (HR)
+
+$ciA
+[1] 0.786823 1.005607  # 95% CI for overall A effect HR
+
+$pvalA
+[1] 0.06139083         # p-value for overall A effect HR
+
+$hra
+[1] 0.8096082          # simple A effect HR
+
+$cia
+[1] 0.6832791 0.9592939 # 95% CI for simple A effect HR
+
+$pvala
+[1] 0.01468184         # p-value for simple A effect HR
+
+$hrab
+[1] 0.7583061          # simple AB effect HR
+
+$ciab
+[1] 0.6389355 0.8999785 # 95% CI fo simple A effect HR
+
+$pvalab
+[1] 0.001545967       # p-value for simple AB effect HR
+
+$crit23A
+[1] -2.129            # critical value for the overall A effect for 2/3-1/3 procedire
+
+$sig23A
+[1] 0.03333333        # significance criterion for overall A effect for 2/3-1/3 procedure
+
+$crit23ab
+[1] -2.233            # critical value for the simple AB effect for 2/3-1/3 procedure
+
+$sig23ab
+[1] 0.0256049         # signficance criterion of simple AB effect for 2/3-1/3 procedure
+
+$result23
+[1] "accept overall A" "reject simple AB"   # hypothesis testing results for 2/3-1/3 proceudre
+
+$crit13
+[1] -2.31            # critical value for all effects for the 1/3-1/3-1/3 procedure
+
+$sig13
+[1] 0.02091404        # significance criterion for all effects for 1/3-1/3-1/3 procedure
+
+$result13
+[1] "accept overall A" "reject simple A"  "reject simple AB"  # hypothesis testing results
+
+$crit12
+[1] -2.217            # critical value for all effects for the 1/2-1/2 procedure
+
+$sig12
+[1] 0.02665078       # significance criterion all effects for 1/2-1/2 procedure
+
+$result12
+[1] "reject simple A"  "reject simple AB"   # hypothesis testing results
+```
+
+### Example 2
+This example reproduces the analysis of the COMBINE Study as reported in Section 4 of 
+Lin, Gong, et al. (Biometrics, 2016).  As described in that paper, the COMBINE study
+was a two-by-two factorial study enrolling 1226 alcohol dependent 
+individuals who were able to abstain from alcohol for at least 4 days prior to the beginning of the trial.  It tested the efficacy of the drug naltrexone both with and without a
+cognitive behavior intervention (CBI) in treating alcoholism.  The trial had two co-primary endpoints:  the percentage of days abstinent and the time to first heavy drinking day ($\ge 5$ standard drinks for men and $\ge 4$ for women).  Each primary endpoint was allocated 0.025 two-sided significance level for efficacy testing.  Below we reproduce the analysis for the time to first heavy drinking day.  This analysis was adjusted for baseline percentage of days abstinent (within 30 days prior the participant's last drink) and research site.  In the below output, the log hazard ratio estimates as well as their corresponding standard errors, Z-statistics, and p-values all agree with the results reported in Table 4 on p.1083 of Lin, Gong, et al.  The data file `combine_data.txt` is available from the *Biometrics* website on the Wiley Online Library.
+
+```{r, eval =   F}
+# read the COMBINE data into an R data frame
+Combine <- read.table("c:\\combine_data.txt", header = T, nrows = 1226, na.strings ="", 
+                      stringsAsFactors= T)
+dim(Combine)
+[1] 1226    9
+
+dimnames(Combine)[[2]]
+[1] "ID"         "AGE"        "GENDER"     "T0_PDA"     "NALTREXONE" 
+[6] "THERAPY"    "site"       "relapse"    "futime"
+
+# create the baseline covariate variables
+T0_PDA <- Combine[,"T0_PDA"]            # baseline percentage of days abstinent
+site_1 <- Combine[,"site"] == "site_1"  # research site indicator variables
+site_2 <- Combine[,"site"] == "site_2"
+site_3 <- Combine[,"site"] == "site_3"
+site_4 <- Combine[,"site"] == "site_4"
+site_5 <- Combine[,"site"] == "site_5"
+site_6 <- Combine[,"site"] == "site_6"
+site_7 <- Combine[,"site"] == "site_7"
+site_8 <- Combine[,"site"] == "site_8"
+site_9 <- Combine[,"site"] == "site_9"
+site_10 <- Combine[,"site"] == "site_10"
+
+# combine the covariates into a single covariate matrix
+CombineCovMat <- cbind(T0_PDA, site_1, site_2, site_3, site_4, site_5, site_6,
+                         site_7, site_8, site_9, site_10)
+
+# define the other required variables
+relapse <- Combine[,"relapse"]         # heavy drinking relapse indicator
+futime <- Combine[,"futime"]           # time to first heavy drinking day or censoring
+NALTREXONE <- Combine[,"NALTREXONE"]   # received naltrexone indicator
+THERAPY <- Combine[,"THERAPY"]         # received cognitive behavioral intervention (CBI) indicator
+
+# reproduce the COMBINE analysis using fac2x2analyze
+fac2x2analyze(futime, relapse, NALTREXONE, THERAPY, CombineCovMat, alpha = 0.025, dig = 4)
+
+$loghrA
+[1] -0.0847782              # log hazard rato estimate for the overall effect of naltrexone
+                        
+$seA
+[1] 0.06854294              # std error of the log HR estimate for the overall effect of naltrexone
+
+$ZstatA
+[1] -1.236863               # Z-statistic for the overall effect of naltrexone
+                            
+
+$pvalA
+[1] 0.2161381               # p-value for the overall effect of naltrexone
+
+$hrA
+[1] 0.918716                # hazard ratio estimate for the overall effect of naltrexone
+
+$ciA
+[1] 0.8032234 1.0508149     # corresponding 95% confidence interval
+
+$loghra
+[1] -0.2517618              # log hazard rato estimate for the simple effect of naltrexone
+
+$sea
+[1] 0.09786137              # std error of the log HR estimate for the simple effect of naltrexone
+
+$Zstata
+[1] -2.572637               # Z-statistic for the simple effect of naltrexone
+
+$pvala
+[1] 0.0100927               # p-value for the simple effect of naltrexone
+
+$hra
+[1] 0.7774299               # hazard ratio estimate for the simple effect of naltrexone
+
+$cia
+[1] 0.6417413 0.9418083     # corresponding 95% confidence interval
+
+$loghrab
+[1] -0.09132675             # log hazard ratio estimate for the simple effect of naltrexone and CBI
+
+$seab
+[1] 0.09553005              # std error of the log HR estimate for the simple effect of naltrexone 
+                            # and CBI
+
+$Zstatab
+[1] -0.9560003              # Z-statistic for the simple effect of naltrexone and CBI
+
+$pvalab
+[1] 0.3390721               # p-value for the simple effect of naltrexone and CBI
+
+$hrab
+[1] 0.9127194               # hazard ratio estimate for the simple effect of naltrexone and CBI
+
+$ciab
+[1] 0.7568686 1.1006624     # corresponding 95% confidence interval
+
+$crit13
+[1] -2.5811                 # critical value for the three tests in Table 4; 
+                            # slightly larger in absolute terms than the
+                            # critical value -2.573 reported on p.1083 of Lin, Gong, et al.
+$sig13
+[1] 0.009848605
+
+$result13
+[1] "accept overall A" "accept simple A"  "accept simple AB"
+
+$crit12
+[1] -2.2154
+
+$sig12
+[1] 0.02673262
+
+$result12
+[1] "reject simple A"  "accept simple AB"
+
+$corAa
+[1] 0.6727651
+
+$corAab
+[1] 0.7078624
+
+$coraab
+[1] 0.4691156  
+```
+## Example using the *fac2x2design* function
+
+Here we use `fac2x2design` to compute the power for Scenario 5 in Table 2 from Leifer, Troendle, et al. (2019).
+
+```{r, eval =   F}
+  n <- 4600          # total sample size
+  rateC <- 0.0445    # one year event rate in the control group
+  hrA <- 0.80        # simple A effect hazard ratio
+  hrB <- 0.80        # simple B effect hazard ratio
+  hrAB <- 0.72       # simple AB effect hazard ratio
+  mincens <- 4.0     # minimum censoring time in years
+  maxcens <- 8.4     # maximum censoring time in years
+  
+  fac2x2design(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, alpha = 0.05)
+  $powerA
+  [1] 0.7182932      # power to detect the overall A effect at the two-sided 0.05 level
+ 
+  $power23.13
+  [1] 0.9290271      # power to detect the overall A or simple AB effects using the 
+                     # 2/3-1/3 procedure
+ 
+  $power13.13.13
+  [1] 0.9302084      # power to detect the overall A, simple A, or simple AB effects using 
+                     # the 1/3-1/3-1/3 procedure
+ 
+  $power12.12
+  [1] 0.9411688      # power to detect the simple A or simple AB effects using the 
+                     # 1/2-1/2 procedure
+  
+  $events            # expected number of events
+  [1] 954.8738
+
+  $evtprob          # event probabilities for the C, A, B, and AB groups, respectively
+  probC     probA     probB    probAB 
+  0.2446365 0.2012540 0.2012540 0.1831806
+```
+
+## References
+Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D. Joint testing of overall and simple effect for the two-by-two factorial design. 2019. Submitted.
+
+Lin, D-Y., Gong, J., Gallo, P., et al. Simultaneous inference on treatment effects in survival studies with factorial designs. *Biometrics*. 2016; 72: 1078-1085.
+
+Slud, E.V. Analysis of factorial survival experiments. *Biometrics*. 1994; 50: 25-38.

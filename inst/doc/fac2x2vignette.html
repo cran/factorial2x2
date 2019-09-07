@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Eric Leifer and James Troendle" />
+
+<meta name="date" content="2019-09-05" />
+
+<title>factorial2x2: Design and Analysis of a 2x2 Factorial Trial with a Time-to-Event Endpoint</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">factorial2x2: Design and Analysis of a 2x2 Factorial Trial with a Time-to-Event Endpoint</h1>
+<h4 class="author">Eric Leifer and James Troendle</h4>
+<h4 class="date">2019-09-05</h4>
+
+
+
+<div id="motivation-for-the-factorial2x2-package" class="section level2">
+<h2>Motivation for the factorial2x2 package</h2>
+<p>The two-by-two factorial design randomizes subjects to receive treatment either <em>A</em> alone, treatment <em>B</em> alone, both treatment <em>A</em> and <em>B</em> <em>(AB)</em>, or neither treatment <em>(C)</em>. When the combined effect of <em>A</em> and <em>B</em> is less than the sum of the separate <em>A</em> and <em>B</em> effects, called <em>subadditivity</em>, there can be low power to detect the <em>A</em> effect using an overall test which compares the <em>A</em> and <em>AB</em> groups to the <em>C</em> and <em>B</em> groups. In such an instance, simple effect tests such as <em>A</em> vs. <em>C</em> and <em>AB</em> vs. <em>C</em> may be useful since they are not affected by subadditivity. However, the simple effect tests can have low power since they use half the subjects of the overall test.</p>
+<p>Consider the <em>A</em> research question which examines the benefit of <em>A</em> either by itself, or in combination with <em>B</em>. To exploit the sample size advantage of the overall test and robustness to subadditivity of the simple tests, various combinations of overall and simple effects tests may be considered. We consider three multiple testing procedures:</p>
+<ol style="list-style-type: decimal">
+<li><p>The <strong>2/3-1/3 procedure</strong> which allocates 2/3 of the significance level to testing the overall <em>A</em> effect and 1/3 of the significance level to the simple <em>AB</em> effect.</p></li>
+<li><p>The <strong>1/3-1/3-1/3 procedure</strong> which allocates 1/3 of the significance level to testing each of the overall <em>A</em>, simple <em>A</em>, and simple <em>AB</em> effects.</p></li>
+<li><p>The <strong>1/2-1/2 procedure</strong> which allocates 1/2 of the significance level to testing the simple <em>A</em> effect and 1/2 to the simple <em>AB</em> effect.</p></li>
+</ol>
+<p><code>factorial2x2</code> has two main R functions: <code>fac2x2analyze</code> computes the hazard ratio, 95% confidence interval, and nominal p-value for the overall <em>A</em>, simple <em>A</em>, and simple <em>AB</em> hazard effects. It also performs signficance testing for the three multiple testing procedures. <code>fac2x2design</code> calculates the power for the overall and simple tests as well as the three multiple testing procedures.</p>
+</div>
+<div id="examples-using-the-fac2x2analyze-function" class="section level2">
+<h2>Examples using the <em>fac2x2analyze</em> function</h2>
+<p>We present two examples using <code>fac2x2analyze</code>.</p>
+<div id="example-1" class="section level3">
+<h3>Example 1</h3>
+<p>This example uses the simulated data in <code>simdata</code> which is a 4600-by-9 matrix which is loaded with the <code>factorial2x2</code> package. <code>simdata</code> corresponds to a simulated 2x2 factorial clinical trial of 4600 subjects. Subjects are simultaneously randomized to receive either treatment <em>A</em> or placebo as well as either treatment <em>B</em> or placebo. We are interested in testing and estimating the overall <em>A</em> effect, the simple <em>A</em> effect, and the simple <em>AB</em> effect. We are also interested in the three multiple testing procedures described in the previous section. Below is the R code and output. Based on the below results, the 2/3-1/3 procedure detects the simple <em>AB</em> effect, the 1/3-1/3-1/3 procedure detects the simple <em>A</em> and <em>AB</em> effects, and the 1/2-1/2 procedure detects the simple <em>A</em> and simple <em>AB</em> effects. Note that the examples which are provided in the <code>factorial2x2</code> manual use the 100-by-9 submatrix <code>simdat</code> of <code>simdata</code> for very rapid computation. <code>simdata</code> is also loaded with the <code>factorial2x2</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">time &lt;-<span class="st"> </span>simdata[, <span class="st">&#39;time&#39;</span>]    <span class="co"># follow-up time</span></a>
+<a class="sourceLine" id="cb1-2" title="2">event &lt;-<span class="st"> </span>simdata[, <span class="st">&#39;event&#39;</span>]  <span class="co"># event indicator</span></a>
+<a class="sourceLine" id="cb1-3" title="3">indA &lt;-<span class="st"> </span>simdata[, <span class="st">&#39;indA&#39;</span>]    <span class="co"># treatment A indicator</span></a>
+<a class="sourceLine" id="cb1-4" title="4">indB &lt;-<span class="st"> </span>simdata[, <span class="st">&#39;indB&#39;</span>]    <span class="co"># treatment B indicator</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">fac2x2analyze</span>(time, event, indA, indB, covmat, <span class="dt">alpha =</span> <span class="fl">0.05</span>, <span class="dt">dig =</span> <span class="dv">3</span>, <span class="dt">niter =</span> <span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="co"># simdata[, 6:10] corresponds to the baseline covariates which include</span></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co"># a history of cardiovascular disease (yes/no) and four indicator</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co"># variables which correspond to which of 5 clinical centers enrolled each of the participants</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="op">$</span>hrA  </a>
+<a class="sourceLine" id="cb1-10" title="10">[<span class="dv">1</span>] <span class="fl">0.8895135</span>          <span class="co"># overall A effect hazard ratio (HR)</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="op">$</span>ciA</a>
+<a class="sourceLine" id="cb1-13" title="13">[<span class="dv">1</span>] <span class="fl">0.786823</span> <span class="fl">1.005607</span>  <span class="co"># 95% CI for overall A effect HR</span></a>
+<a class="sourceLine" id="cb1-14" title="14"></a>
+<a class="sourceLine" id="cb1-15" title="15"><span class="op">$</span>pvalA</a>
+<a class="sourceLine" id="cb1-16" title="16">[<span class="dv">1</span>] <span class="fl">0.06139083</span>         <span class="co"># p-value for overall A effect HR</span></a>
+<a class="sourceLine" id="cb1-17" title="17"></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="op">$</span>hra</a>
+<a class="sourceLine" id="cb1-19" title="19">[<span class="dv">1</span>] <span class="fl">0.8096082</span>          <span class="co"># simple A effect HR</span></a>
+<a class="sourceLine" id="cb1-20" title="20"></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">$</span>cia</a>
+<a class="sourceLine" id="cb1-22" title="22">[<span class="dv">1</span>] <span class="fl">0.6832791</span> <span class="fl">0.9592939</span> <span class="co"># 95% CI for simple A effect HR</span></a>
+<a class="sourceLine" id="cb1-23" title="23"></a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="op">$</span>pvala</a>
+<a class="sourceLine" id="cb1-25" title="25">[<span class="dv">1</span>] <span class="fl">0.01468184</span>         <span class="co"># p-value for simple A effect HR</span></a>
+<a class="sourceLine" id="cb1-26" title="26"></a>
+<a class="sourceLine" id="cb1-27" title="27"><span class="op">$</span>hrab</a>
+<a class="sourceLine" id="cb1-28" title="28">[<span class="dv">1</span>] <span class="fl">0.7583061</span>          <span class="co"># simple AB effect HR</span></a>
+<a class="sourceLine" id="cb1-29" title="29"></a>
+<a class="sourceLine" id="cb1-30" title="30"><span class="op">$</span>ciab</a>
+<a class="sourceLine" id="cb1-31" title="31">[<span class="dv">1</span>] <span class="fl">0.6389355</span> <span class="fl">0.8999785</span> <span class="co"># 95% CI fo simple A effect HR</span></a>
+<a class="sourceLine" id="cb1-32" title="32"></a>
+<a class="sourceLine" id="cb1-33" title="33"><span class="op">$</span>pvalab</a>
+<a class="sourceLine" id="cb1-34" title="34">[<span class="dv">1</span>] <span class="fl">0.001545967</span>       <span class="co"># p-value for simple AB effect HR</span></a>
+<a class="sourceLine" id="cb1-35" title="35"></a>
+<a class="sourceLine" id="cb1-36" title="36"><span class="op">$</span>crit23A</a>
+<a class="sourceLine" id="cb1-37" title="37">[<span class="dv">1</span>] <span class="fl">-2.129</span>            <span class="co"># critical value for the overall A effect for 2/3-1/3 procedire</span></a>
+<a class="sourceLine" id="cb1-38" title="38"></a>
+<a class="sourceLine" id="cb1-39" title="39"><span class="op">$</span>sig23A</a>
+<a class="sourceLine" id="cb1-40" title="40">[<span class="dv">1</span>] <span class="fl">0.03333333</span>        <span class="co"># significance criterion for overall A effect for 2/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb1-41" title="41"></a>
+<a class="sourceLine" id="cb1-42" title="42"><span class="op">$</span>crit23ab</a>
+<a class="sourceLine" id="cb1-43" title="43">[<span class="dv">1</span>] <span class="fl">-2.233</span>            <span class="co"># critical value for the simple AB effect for 2/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb1-44" title="44"></a>
+<a class="sourceLine" id="cb1-45" title="45"><span class="op">$</span>sig23ab</a>
+<a class="sourceLine" id="cb1-46" title="46">[<span class="dv">1</span>] <span class="fl">0.0256049</span>         <span class="co"># signficance criterion of simple AB effect for 2/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb1-47" title="47"></a>
+<a class="sourceLine" id="cb1-48" title="48"><span class="op">$</span>result23</a>
+<a class="sourceLine" id="cb1-49" title="49">[<span class="dv">1</span>] <span class="st">&quot;accept overall A&quot;</span> <span class="st">&quot;reject simple AB&quot;</span>   <span class="co"># hypothesis testing results for 2/3-1/3 proceudre</span></a>
+<a class="sourceLine" id="cb1-50" title="50"></a>
+<a class="sourceLine" id="cb1-51" title="51"><span class="op">$</span>crit13</a>
+<a class="sourceLine" id="cb1-52" title="52">[<span class="dv">1</span>] <span class="fl">-2.31</span>            <span class="co"># critical value for all effects for the 1/3-1/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb1-53" title="53"></a>
+<a class="sourceLine" id="cb1-54" title="54"><span class="op">$</span>sig13</a>
+<a class="sourceLine" id="cb1-55" title="55">[<span class="dv">1</span>] <span class="fl">0.02091404</span>        <span class="co"># significance criterion for all effects for 1/3-1/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb1-56" title="56"></a>
+<a class="sourceLine" id="cb1-57" title="57"><span class="op">$</span>result13</a>
+<a class="sourceLine" id="cb1-58" title="58">[<span class="dv">1</span>] <span class="st">&quot;accept overall A&quot;</span> <span class="st">&quot;reject simple A&quot;</span>  <span class="st">&quot;reject simple AB&quot;</span>  <span class="co"># hypothesis testing results</span></a>
+<a class="sourceLine" id="cb1-59" title="59"></a>
+<a class="sourceLine" id="cb1-60" title="60"><span class="op">$</span>crit12</a>
+<a class="sourceLine" id="cb1-61" title="61">[<span class="dv">1</span>] <span class="fl">-2.217</span>            <span class="co"># critical value for all effects for the 1/2-1/2 procedure</span></a>
+<a class="sourceLine" id="cb1-62" title="62"></a>
+<a class="sourceLine" id="cb1-63" title="63"><span class="op">$</span>sig12</a>
+<a class="sourceLine" id="cb1-64" title="64">[<span class="dv">1</span>] <span class="fl">0.02665078</span>       <span class="co"># significance criterion all effects for 1/2-1/2 procedure</span></a>
+<a class="sourceLine" id="cb1-65" title="65"></a>
+<a class="sourceLine" id="cb1-66" title="66"><span class="op">$</span>result12</a>
+<a class="sourceLine" id="cb1-67" title="67">[<span class="dv">1</span>] <span class="st">&quot;reject simple A&quot;</span>  <span class="st">&quot;reject simple AB&quot;</span>   <span class="co"># hypothesis testing results</span></a></code></pre></div>
+</div>
+<div id="example-2" class="section level3">
+<h3>Example 2</h3>
+<p>This example reproduces the analysis of the COMBINE Study as reported in Section 4 of Lin, Gong, et al. (Biometrics, 2016). As described in that paper, the COMBINE study was a two-by-two factorial study enrolling 1226 alcohol dependent individuals who were able to abstain from alcohol for at least 4 days prior to the beginning of the trial. It tested the efficacy of the drug naltrexone both with and without a cognitive behavior intervention (CBI) in treating alcoholism. The trial had two co-primary endpoints: the percentage of days abstinent and the time to first heavy drinking day (<span class="math inline">\(\ge 5\)</span> standard drinks for men and <span class="math inline">\(\ge 4\)</span> for women). Each primary endpoint was allocated 0.025 two-sided significance level for efficacy testing. Below we reproduce the analysis for the time to first heavy drinking day. This analysis was adjusted for baseline percentage of days abstinent (within 30 days prior the participant’s last drink) and research site. In the below output, the log hazard ratio estimates as well as their corresponding standard errors, Z-statistics, and p-values all agree with the results reported in Table 4 on p.1083 of Lin, Gong, et al. The data file <code>combine_data.txt</code> is available from the <em>Biometrics</em> website on the Wiley Online Library.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># read the COMBINE data into an R data frame</span></a>
+<a class="sourceLine" id="cb2-2" title="2">Combine &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;c:</span><span class="ch">\\</span><span class="st">combine_data.txt&quot;</span>, <span class="dt">header =</span> T, <span class="dt">nrows =</span> <span class="dv">1226</span>, <span class="dt">na.strings =</span><span class="st">&quot;&quot;</span>, </a>
+<a class="sourceLine" id="cb2-3" title="3">                      <span class="dt">stringsAsFactors=</span> T)</a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="kw">dim</span>(Combine)</a>
+<a class="sourceLine" id="cb2-5" title="5">[<span class="dv">1</span>] <span class="dv">1226</span>    <span class="dv">9</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="kw">dimnames</span>(Combine)[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb2-8" title="8">[<span class="dv">1</span>] <span class="st">&quot;ID&quot;</span>         <span class="st">&quot;AGE&quot;</span>        <span class="st">&quot;GENDER&quot;</span>     <span class="st">&quot;T0_PDA&quot;</span>     <span class="st">&quot;NALTREXONE&quot;</span> </a>
+<a class="sourceLine" id="cb2-9" title="9">[<span class="dv">6</span>] <span class="st">&quot;THERAPY&quot;</span>    <span class="st">&quot;site&quot;</span>       <span class="st">&quot;relapse&quot;</span>    <span class="st">&quot;futime&quot;</span></a>
+<a class="sourceLine" id="cb2-10" title="10"></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="co"># create the baseline covariate variables</span></a>
+<a class="sourceLine" id="cb2-12" title="12">T0_PDA &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;T0_PDA&quot;</span>]            <span class="co"># baseline percentage of days abstinent</span></a>
+<a class="sourceLine" id="cb2-13" title="13">site_<span class="dv">1</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_1&quot;</span>  <span class="co"># research site indicator variables</span></a>
+<a class="sourceLine" id="cb2-14" title="14">site_<span class="dv">2</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_2&quot;</span></a>
+<a class="sourceLine" id="cb2-15" title="15">site_<span class="dv">3</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_3&quot;</span></a>
+<a class="sourceLine" id="cb2-16" title="16">site_<span class="dv">4</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_4&quot;</span></a>
+<a class="sourceLine" id="cb2-17" title="17">site_<span class="dv">5</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_5&quot;</span></a>
+<a class="sourceLine" id="cb2-18" title="18">site_<span class="dv">6</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_6&quot;</span></a>
+<a class="sourceLine" id="cb2-19" title="19">site_<span class="dv">7</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_7&quot;</span></a>
+<a class="sourceLine" id="cb2-20" title="20">site_<span class="dv">8</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_8&quot;</span></a>
+<a class="sourceLine" id="cb2-21" title="21">site_<span class="dv">9</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_9&quot;</span></a>
+<a class="sourceLine" id="cb2-22" title="22">site_<span class="dv">10</span> &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;site&quot;</span>] <span class="op">==</span><span class="st"> &quot;site_10&quot;</span></a>
+<a class="sourceLine" id="cb2-23" title="23"></a>
+<a class="sourceLine" id="cb2-24" title="24"><span class="co"># combine the covariates into a single covariate matrix</span></a>
+<a class="sourceLine" id="cb2-25" title="25">CombineCovMat &lt;-<span class="st"> </span><span class="kw">cbind</span>(T0_PDA, site_<span class="dv">1</span>, site_<span class="dv">2</span>, site_<span class="dv">3</span>, site_<span class="dv">4</span>, site_<span class="dv">5</span>, site_<span class="dv">6</span>,</a>
+<a class="sourceLine" id="cb2-26" title="26">                         site_<span class="dv">7</span>, site_<span class="dv">8</span>, site_<span class="dv">9</span>, site_<span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb2-27" title="27"></a>
+<a class="sourceLine" id="cb2-28" title="28"><span class="co"># define the other required variables</span></a>
+<a class="sourceLine" id="cb2-29" title="29">relapse &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;relapse&quot;</span>]         <span class="co"># heavy drinking relapse indicator</span></a>
+<a class="sourceLine" id="cb2-30" title="30">futime &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;futime&quot;</span>]           <span class="co"># time to first heavy drinking day or censoring</span></a>
+<a class="sourceLine" id="cb2-31" title="31">NALTREXONE &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;NALTREXONE&quot;</span>]   <span class="co"># received naltrexone indicator</span></a>
+<a class="sourceLine" id="cb2-32" title="32">THERAPY &lt;-<span class="st"> </span>Combine[,<span class="st">&quot;THERAPY&quot;</span>]         <span class="co"># received cognitive behavioral intervention (CBI) indicator</span></a>
+<a class="sourceLine" id="cb2-33" title="33"></a>
+<a class="sourceLine" id="cb2-34" title="34"><span class="co"># reproduce the COMBINE analysis using fac2x2analyze</span></a>
+<a class="sourceLine" id="cb2-35" title="35"><span class="kw">fac2x2analyze</span>(futime, relapse, NALTREXONE, THERAPY, CombineCovMat, <span class="dt">alpha =</span> <span class="fl">0.025</span>, <span class="dt">dig =</span> <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb2-36" title="36"></a>
+<a class="sourceLine" id="cb2-37" title="37"><span class="op">$</span>loghrA</a>
+<a class="sourceLine" id="cb2-38" title="38">[<span class="dv">1</span>] <span class="fl">-0.0847782</span>              <span class="co"># log hazard rato estimate for the overall effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-39" title="39">                        </a>
+<a class="sourceLine" id="cb2-40" title="40"><span class="op">$</span>seA</a>
+<a class="sourceLine" id="cb2-41" title="41">[<span class="dv">1</span>] <span class="fl">0.06854294</span>              <span class="co"># std error of the log HR estimate for the overall effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-42" title="42"></a>
+<a class="sourceLine" id="cb2-43" title="43"><span class="op">$</span>ZstatA</a>
+<a class="sourceLine" id="cb2-44" title="44">[<span class="dv">1</span>] <span class="fl">-1.236863</span>               <span class="co"># Z-statistic for the overall effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-45" title="45">                            </a>
+<a class="sourceLine" id="cb2-46" title="46"></a>
+<a class="sourceLine" id="cb2-47" title="47"><span class="op">$</span>pvalA</a>
+<a class="sourceLine" id="cb2-48" title="48">[<span class="dv">1</span>] <span class="fl">0.2161381</span>               <span class="co"># p-value for the overall effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-49" title="49"></a>
+<a class="sourceLine" id="cb2-50" title="50"><span class="op">$</span>hrA</a>
+<a class="sourceLine" id="cb2-51" title="51">[<span class="dv">1</span>] <span class="fl">0.918716</span>                <span class="co"># hazard ratio estimate for the overall effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-52" title="52"></a>
+<a class="sourceLine" id="cb2-53" title="53"><span class="op">$</span>ciA</a>
+<a class="sourceLine" id="cb2-54" title="54">[<span class="dv">1</span>] <span class="fl">0.8032234</span> <span class="fl">1.0508149</span>     <span class="co"># corresponding 95% confidence interval</span></a>
+<a class="sourceLine" id="cb2-55" title="55"></a>
+<a class="sourceLine" id="cb2-56" title="56"><span class="op">$</span>loghra</a>
+<a class="sourceLine" id="cb2-57" title="57">[<span class="dv">1</span>] <span class="fl">-0.2517618</span>              <span class="co"># log hazard rato estimate for the simple effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-58" title="58"></a>
+<a class="sourceLine" id="cb2-59" title="59"><span class="op">$</span>sea</a>
+<a class="sourceLine" id="cb2-60" title="60">[<span class="dv">1</span>] <span class="fl">0.09786137</span>              <span class="co"># std error of the log HR estimate for the simple effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-61" title="61"></a>
+<a class="sourceLine" id="cb2-62" title="62"><span class="op">$</span>Zstata</a>
+<a class="sourceLine" id="cb2-63" title="63">[<span class="dv">1</span>] <span class="fl">-2.572637</span>               <span class="co"># Z-statistic for the simple effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-64" title="64"></a>
+<a class="sourceLine" id="cb2-65" title="65"><span class="op">$</span>pvala</a>
+<a class="sourceLine" id="cb2-66" title="66">[<span class="dv">1</span>] <span class="fl">0.0100927</span>               <span class="co"># p-value for the simple effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-67" title="67"></a>
+<a class="sourceLine" id="cb2-68" title="68"><span class="op">$</span>hra</a>
+<a class="sourceLine" id="cb2-69" title="69">[<span class="dv">1</span>] <span class="fl">0.7774299</span>               <span class="co"># hazard ratio estimate for the simple effect of naltrexone</span></a>
+<a class="sourceLine" id="cb2-70" title="70"></a>
+<a class="sourceLine" id="cb2-71" title="71"><span class="op">$</span>cia</a>
+<a class="sourceLine" id="cb2-72" title="72">[<span class="dv">1</span>] <span class="fl">0.6417413</span> <span class="fl">0.9418083</span>     <span class="co"># corresponding 95% confidence interval</span></a>
+<a class="sourceLine" id="cb2-73" title="73"></a>
+<a class="sourceLine" id="cb2-74" title="74"><span class="op">$</span>loghrab</a>
+<a class="sourceLine" id="cb2-75" title="75">[<span class="dv">1</span>] <span class="fl">-0.09132675</span>             <span class="co"># log hazard ratio estimate for the simple effect of naltrexone and CBI</span></a>
+<a class="sourceLine" id="cb2-76" title="76"></a>
+<a class="sourceLine" id="cb2-77" title="77"><span class="op">$</span>seab</a>
+<a class="sourceLine" id="cb2-78" title="78">[<span class="dv">1</span>] <span class="fl">0.09553005</span>              <span class="co"># std error of the log HR estimate for the simple effect of naltrexone </span></a>
+<a class="sourceLine" id="cb2-79" title="79">                            <span class="co"># and CBI</span></a>
+<a class="sourceLine" id="cb2-80" title="80"></a>
+<a class="sourceLine" id="cb2-81" title="81"><span class="op">$</span>Zstatab</a>
+<a class="sourceLine" id="cb2-82" title="82">[<span class="dv">1</span>] <span class="fl">-0.9560003</span>              <span class="co"># Z-statistic for the simple effect of naltrexone and CBI</span></a>
+<a class="sourceLine" id="cb2-83" title="83"></a>
+<a class="sourceLine" id="cb2-84" title="84"><span class="op">$</span>pvalab</a>
+<a class="sourceLine" id="cb2-85" title="85">[<span class="dv">1</span>] <span class="fl">0.3390721</span>               <span class="co"># p-value for the simple effect of naltrexone and CBI</span></a>
+<a class="sourceLine" id="cb2-86" title="86"></a>
+<a class="sourceLine" id="cb2-87" title="87"><span class="op">$</span>hrab</a>
+<a class="sourceLine" id="cb2-88" title="88">[<span class="dv">1</span>] <span class="fl">0.9127194</span>               <span class="co"># hazard ratio estimate for the simple effect of naltrexone and CBI</span></a>
+<a class="sourceLine" id="cb2-89" title="89"></a>
+<a class="sourceLine" id="cb2-90" title="90"><span class="op">$</span>ciab</a>
+<a class="sourceLine" id="cb2-91" title="91">[<span class="dv">1</span>] <span class="fl">0.7568686</span> <span class="fl">1.1006624</span>     <span class="co"># corresponding 95% confidence interval</span></a>
+<a class="sourceLine" id="cb2-92" title="92"></a>
+<a class="sourceLine" id="cb2-93" title="93"><span class="op">$</span>crit13</a>
+<a class="sourceLine" id="cb2-94" title="94">[<span class="dv">1</span>] <span class="fl">-2.5811</span>                 <span class="co"># critical value for the three tests in Table 4; </span></a>
+<a class="sourceLine" id="cb2-95" title="95">                            <span class="co"># slightly larger in absolute terms than the</span></a>
+<a class="sourceLine" id="cb2-96" title="96">                            <span class="co"># critical value -2.573 reported on p.1083 of Lin, Gong, et al.</span></a>
+<a class="sourceLine" id="cb2-97" title="97"><span class="op">$</span>sig13</a>
+<a class="sourceLine" id="cb2-98" title="98">[<span class="dv">1</span>] <span class="fl">0.009848605</span></a>
+<a class="sourceLine" id="cb2-99" title="99"></a>
+<a class="sourceLine" id="cb2-100" title="100"><span class="op">$</span>result13</a>
+<a class="sourceLine" id="cb2-101" title="101">[<span class="dv">1</span>] <span class="st">&quot;accept overall A&quot;</span> <span class="st">&quot;accept simple A&quot;</span>  <span class="st">&quot;accept simple AB&quot;</span></a>
+<a class="sourceLine" id="cb2-102" title="102"></a>
+<a class="sourceLine" id="cb2-103" title="103"><span class="op">$</span>crit12</a>
+<a class="sourceLine" id="cb2-104" title="104">[<span class="dv">1</span>] <span class="fl">-2.2154</span></a>
+<a class="sourceLine" id="cb2-105" title="105"></a>
+<a class="sourceLine" id="cb2-106" title="106"><span class="op">$</span>sig12</a>
+<a class="sourceLine" id="cb2-107" title="107">[<span class="dv">1</span>] <span class="fl">0.02673262</span></a>
+<a class="sourceLine" id="cb2-108" title="108"></a>
+<a class="sourceLine" id="cb2-109" title="109"><span class="op">$</span>result12</a>
+<a class="sourceLine" id="cb2-110" title="110">[<span class="dv">1</span>] <span class="st">&quot;reject simple A&quot;</span>  <span class="st">&quot;accept simple AB&quot;</span></a>
+<a class="sourceLine" id="cb2-111" title="111"></a>
+<a class="sourceLine" id="cb2-112" title="112"><span class="op">$</span>corAa</a>
+<a class="sourceLine" id="cb2-113" title="113">[<span class="dv">1</span>] <span class="fl">0.6727651</span></a>
+<a class="sourceLine" id="cb2-114" title="114"></a>
+<a class="sourceLine" id="cb2-115" title="115"><span class="op">$</span>corAab</a>
+<a class="sourceLine" id="cb2-116" title="116">[<span class="dv">1</span>] <span class="fl">0.7078624</span></a>
+<a class="sourceLine" id="cb2-117" title="117"></a>
+<a class="sourceLine" id="cb2-118" title="118"><span class="op">$</span>coraab</a>
+<a class="sourceLine" id="cb2-119" title="119">[<span class="dv">1</span>] <span class="fl">0.4691156</span>  </a></code></pre></div>
+</div>
+</div>
+<div id="example-using-the-fac2x2design-function" class="section level2">
+<h2>Example using the <em>fac2x2design</em> function</h2>
+<p>Here we use <code>fac2x2design</code> to compute the power for Scenario 5 in Table 2 from Leifer, Troendle, et al. (2019).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">  n &lt;-<span class="st"> </span><span class="dv">4600</span>          <span class="co"># total sample size</span></a>
+<a class="sourceLine" id="cb3-2" title="2">  rateC &lt;-<span class="st"> </span><span class="fl">0.0445</span>    <span class="co"># one year event rate in the control group</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  hrA &lt;-<span class="st"> </span><span class="fl">0.80</span>        <span class="co"># simple A effect hazard ratio</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  hrB &lt;-<span class="st"> </span><span class="fl">0.80</span>        <span class="co"># simple B effect hazard ratio</span></a>
+<a class="sourceLine" id="cb3-5" title="5">  hrAB &lt;-<span class="st"> </span><span class="fl">0.72</span>       <span class="co"># simple AB effect hazard ratio</span></a>
+<a class="sourceLine" id="cb3-6" title="6">  mincens &lt;-<span class="st"> </span><span class="fl">4.0</span>     <span class="co"># minimum censoring time in years</span></a>
+<a class="sourceLine" id="cb3-7" title="7">  maxcens &lt;-<span class="st"> </span><span class="fl">8.4</span>     <span class="co"># maximum censoring time in years</span></a>
+<a class="sourceLine" id="cb3-8" title="8">  </a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="kw">fac2x2design</span>(n, rateC, hrA, hrB, hrAB, mincens, maxcens, <span class="dt">dig =</span> <span class="dv">2</span>, <span class="dt">alpha =</span> <span class="fl">0.05</span>)</a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="op">$</span>powerA</a>
+<a class="sourceLine" id="cb3-11" title="11">  [<span class="dv">1</span>] <span class="fl">0.7182932</span>      <span class="co"># power to detect the overall A effect at the two-sided 0.05 level</span></a>
+<a class="sourceLine" id="cb3-12" title="12"> </a>
+<a class="sourceLine" id="cb3-13" title="13">  <span class="op">$</span>power23<span class="fl">.13</span></a>
+<a class="sourceLine" id="cb3-14" title="14">  [<span class="dv">1</span>] <span class="fl">0.9290271</span>      <span class="co"># power to detect the overall A or simple AB effects using the </span></a>
+<a class="sourceLine" id="cb3-15" title="15">                     <span class="co"># 2/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb3-16" title="16"> </a>
+<a class="sourceLine" id="cb3-17" title="17">  <span class="op">$</span>power13.<span class="fl">13.13</span></a>
+<a class="sourceLine" id="cb3-18" title="18">  [<span class="dv">1</span>] <span class="fl">0.9302084</span>      <span class="co"># power to detect the overall A, simple A, or simple AB effects using </span></a>
+<a class="sourceLine" id="cb3-19" title="19">                     <span class="co"># the 1/3-1/3-1/3 procedure</span></a>
+<a class="sourceLine" id="cb3-20" title="20"> </a>
+<a class="sourceLine" id="cb3-21" title="21">  <span class="op">$</span>power12<span class="fl">.12</span></a>
+<a class="sourceLine" id="cb3-22" title="22">  [<span class="dv">1</span>] <span class="fl">0.9411688</span>      <span class="co"># power to detect the simple A or simple AB effects using the </span></a>
+<a class="sourceLine" id="cb3-23" title="23">                     <span class="co"># 1/2-1/2 procedure</span></a>
+<a class="sourceLine" id="cb3-24" title="24">  </a>
+<a class="sourceLine" id="cb3-25" title="25">  <span class="op">$</span>events            <span class="co"># expected number of events</span></a>
+<a class="sourceLine" id="cb3-26" title="26">  [<span class="dv">1</span>] <span class="fl">954.8738</span></a>
+<a class="sourceLine" id="cb3-27" title="27"></a>
+<a class="sourceLine" id="cb3-28" title="28">  <span class="op">$</span>evtprob          <span class="co"># event probabilities for the C, A, B, and AB groups, respectively</span></a>
+<a class="sourceLine" id="cb3-29" title="29">  probC     probA     probB    probAB </a>
+<a class="sourceLine" id="cb3-30" title="30">  <span class="fl">0.2446365</span> <span class="fl">0.2012540</span> <span class="fl">0.2012540</span> <span class="fl">0.1831806</span></a></code></pre></div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D. Joint testing of overall and simple effect for the two-by-two factorial design. 2019. Submitted.</p>
+<p>Lin, D-Y., Gong, J., Gallo, P., et al. Simultaneous inference on treatment effects in survival studies with factorial designs. <em>Biometrics</em>. 2016; 72: 1078-1085.</p>
+<p>Slud, E.V. Analysis of factorial survival experiments. <em>Biometrics</em>. 1994; 50: 25-38.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

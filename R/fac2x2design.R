@@ -1,4 +1,5 @@
-#' Power for the 2/3-1/3, 1/3-1/3-1/3, 1/2-1/2 procedures
+#' Power for the Equal Allocation 3, Proportional Allocation 2, and
+#' Equal Allocation 2 procedures.
 #'
 #' @param n  total sample size
 #' @param rateC group C one year event rate
@@ -11,26 +12,30 @@
 #' @param alpha two-sided significance level
 #' @param corAa	correlation between the overall A and simple A log hazard ratio estimates
 #' @param corAab correlation between the overall A and simple AB log hazard ratio estimates
-#' @param coraab	correalation between the simple A and simple AB log hazard ratio estimates
+#' @param coraab	correlation between the simple A and simple AB log hazard ratio estimates
 #' @param  niter  number of times we call \code{pmvnorm} to average out its randomness
 #' @param  abseps  \code{abseps} setting in the \code{pmvnorm} call
-#' @return \item{powerA}{power to detect the overall A effect at the two-sided \code{alpha} level}
-#' @return \item{powerB}{power to detect the overall B effect at the two-sided \code{alpha} level}
-#' @return \item{power23.13 }{power to detect the overall A or simple AB effects using the 2/3-1/3 procedure}
-#' @return \item{power13.13.13 }{power to detect the overall A, simple A,  or simple AB effects using
-#' the 1/3-1/3-1/3 procedure}
-#' @return \item{power12.12 }{power to detect the simple A or simple AB effects using
-#' the 1/2-1/2 procedure}
 #' @return \item{events}{expected number of events}
 #' @return \item{evtprob}{event probabilities for the C, A, B, and AB groups, respectively}
-#' @seealso  \code{\link{eventProb}}, \code{\link{crit2x2}}, \code{\link{strLgrkPower}}
-#' \code{\link{power23_13}}, \code{\link{power13_13_13}}, \code{\link{power12_12}}
+#' @return \item{powerEA3overallA }{Equal Allocation 3's power to detect the overall A effect}
+#' @return \item{powerEA3simpleA }{Equal Allocation 3's power to detect the simple A effect}
+#' @return \item{powerEA3simpleAB }{Equal Allocation 3's power to detect the simple AB effect}
+#' @return \item{powerEA3anyA }{Equal Allocation 3's power to detect the simple A or AB effects}
+#' @return \item{powerPA2overallA }{Proportional Allocation 2's power to detect the overall A effect}
+#' @return \item{powerPA2simpleAB }{Proportional Allocation 2's power to detect the simple AB effect}
+#' @return \item{powerEA2simpleA }{Equal Allocation 2's power to detect the simple A effect}
+#' @return \item{powerEA2simpleAB }{Equal Allocation 2's power to detect the simple AB effect}
+#' @return \item{powerA}{power to detect the overall A effect at the two-sided \code{alpha} level}
+#' @return \item{powerB}{power to detect the overall B effect at the two-sided \code{alpha} level}
+#' @seealso  \code{\link{eventProb}}, \code{\link{crit2x2}}, \code{\link{lgrkPower}}
+#' \code{\link{strLgrkPower}}, \code{\link{powerEA3}}, \code{\link{powerPA2}},
+#' \code{\link{powerEA2}}
 #' @references Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D.
 #' Joint testing of overall and simple effect for the two-by-two factorial design. (2019). Submitted.
 #' @references Slud, E.V. Analysis of factorial survival experiments. Biometrics. 1994; 50: 25-38.
 #' @export fac2x2design
 #' @examples
-#' # Corresponds to scenario 5 in Table 2 from Leifer, Troendle, et al. (2019).
+#' # Corresponds to scenario 4 in Table 2 from Leifer, Troendle, et al. (2019).
 #' n <- 4600
 #' rateC <- 0.0445
 #' hrA <- 0.80
@@ -40,27 +45,42 @@
 #' maxcens <- 8.4
 #'
 #' fac2x2design(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, alpha = 0.05, niter = 1)
-#' # $powerA
-#' # [1] 0.7182932
-#'
-#' # $powerB
-#' # [1] 0.7182932
-#'
-#' # $power23.13
-#' # [1] 0.9290062
-#'
-#' # $power13.13.13
-#' # [1] 0.9302078
-#'
-#' # $power12.12
-#' # [1] 0.9411688
-#'
 #' # $events
 #' # [1] 954.8738
 #'
 #' # $evtprob
 #' # probC     probA     probB    probAB
 #' # 0.2446365 0.2012540 0.2012540 0.1831806
+#'
+#' # $powerEA3overallA
+#' # [1] 0.5861992
+#'
+#' # $powerEA3simpleA
+#' # [1] 0.5817954
+#'
+#' # $powerEA3simplAB
+#' # [1] 0.9071236
+#'
+#' # $powerEA3anyA
+#' # [1] 0.7060777
+#
+#' # $powerPA2overallA
+#' # [1] 0.6582819
+#'
+#' # $powerPA2simpleAB
+#' # [1] 0.9197286
+#'
+#' # $powerEA2simpleA
+#' # [1] 0.6203837
+#' #
+#' # $powerEA2simpleAB
+#' # [1] 0.9226679
+#'
+#' # $powerA
+#' # [1] 0.7182932
+#'
+#' # $powerB
+#' # [1] 0.7182932
 #'
 fac2x2design <- function(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, alpha = 0.05,
                          niter = 5, abseps = 1e-03,
@@ -70,10 +90,10 @@ fac2x2design <- function(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, al
   probA_C <- evtprob$probA_C
   probAB_C <- evtprob$probAB_C
   critvals <- crit2x2(corAa, corAab, coraab, dig, alpha)
-  crit23A <- critvals$crit23A
-  crit23ab <- critvals$crit23ab
-  crit13 <- critvals$crit13
-  crit12 <- critvals$crit12
+  critPA2A <- critvals$critPA2A
+  critPA2ab <- critvals$critPA2ab
+  critEA3 <- critvals$critEA3
+  critEA2 <- critvals$critEA2
 
   # compute power for the overall A test
   powerA <- strLgrkPower(n, hrA, hrB, hrAB, avgprob, dig, alpha)$power
@@ -82,25 +102,22 @@ fac2x2design <- function(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, al
   # of hrA and hrB in the previous line
   powerB <- strLgrkPower(n, hrB, hrA, hrAB, avgprob, dig, alpha)$power
 
-  power23.13 <- power23_13(n, hrA, hrB, hrAB, avgprob, probAB_C,
-    crit23A, crit23ab, dig, cormat =
-    matrix(c(1, sqrt(0.5), sqrt(0.5), 1), byrow = TRUE,
-    nrow = 2), niter, abseps)$power23.13
+  auxPA2 <- powerPA2(n, hrA, hrB, hrAB, avgprob, probAB_C,
+    critPA2A, critPA2ab, dig)
 
-  power13.13.13 <- power13_13_13(n, hrA, hrB, hrAB, avgprob, probA_C,
-    probAB_C, crit13, dig, cormat12 = matrix(c(1, sqrt(0.5),
-    sqrt(0.5), 1), byrow = TRUE, nrow = 2), cormat23 = matrix(c(1, 0.5, 0.5, 1),
-    byrow = TRUE, nrow = 2),
-    cormat123 = matrix(c(1, sqrt(0.5), sqrt(0.5), sqrt(0.5), 1, 0.5,
-    sqrt(0.5), 0.5, 1), byrow=TRUE, nrow = 3), niter,
-    abseps)$power13.13.13
+  auxEA3 <- powerEA3(n, hrA, hrB, hrAB, avgprob, probA_C,
+    probAB_C, critEA3, dig, cormat12 = matrix(c(1, sqrt(0.5),
+    sqrt(0.5), 1), byrow = TRUE, nrow = 2), niter, abseps)
 
-  power12.12 <- power12_12(n, hrA, hrAB, probA_C, probAB_C,
-    crit12, cormat = matrix(c(1,0.5,0.5,1), byrow =TRUE, nrow =2),
-    niter, abseps)$power12.12
+  auxEA2 <- powerEA2(n, hrA, hrAB, probA_C, probAB_C,
+    critEA2)
 
-  list(powerA = powerA, powerB = powerB, power23.13 = power23.13,
-       power13.13.13 = power13.13.13,
-       power12.12 = power12.12, events = n * avgprob,
-       evtprob = c(unlist(evtprob))[2:5])
+  list(events = n * avgprob, evtprob = c(unlist(evtprob))[2:5],
+       powerEA3overallA = auxEA3$powerEA3overallA, powerEA3simpleA = auxEA3$powerEA3simpleA,
+       powerEA3simplAB = auxEA3$powerEA3simpleAB, powerEA3anyA = auxEA3$powerEA3anyA,
+       powerPA2overallA = auxPA2$powerPA2overallA,
+       powerPA2simpleAB = auxPA2$powerPA2simpleAB,
+       powerEA2simpleA = auxEA2$powerEA2simpleA,
+       powerEA2simpleAB = auxEA2$powerEA2simpleAB,
+       powerA = powerA, powerB = powerB)
 }

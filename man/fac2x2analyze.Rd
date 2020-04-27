@@ -2,10 +2,10 @@
 % Please edit documentation in R/fac2x2analyze.R
 \name{fac2x2analyze}
 \alias{fac2x2analyze}
-\title{Significance testing for the 2/3-1/3, 1/3-1/3-1/3, 1/2-1/2 procedures}
+\title{Significance testing for the Proportional Allocation 2, Equal Allocation 3,
+Equal Allocation 2 procedures}
 \usage{
-fac2x2analyze(time, event, indA, indB, covmat, alpha, dig = 2,
-  niter = 5)
+fac2x2analyze(time, event, indA, indB, covmat, alpha, dig = 2, niter = 5)
 }
 \arguments{
 \item{time}{follow-up times}
@@ -25,84 +25,93 @@ fac2x2analyze(time, event, indA, indB, covmat, alpha, dig = 2,
 \item{niter}{number of interations passed to \code{crit2x2} function call}
 }
 \value{
-\item{loghrA }{overall A log hazard ratio}
+\item{loghrAoverall }{overall A log hazard ratio}
 
-\item{seA }{standard error of the overall A log hazard ratio}
+\item{seAoverall }{standard error of the overall A log hazard ratio}
 
-\item{ZstatA }{Z-statistic for the overall A log hazard ratio}
+\item{ZstatAoverall }{Z-statistic for the overall A log hazard ratio}
 
-\item{pvalA }{two-sided p-value for the overall hazard ratio}
+\item{pvalAoverall }{two-sided p-value for the overall hazard ratio}
 
-\item{hrA }{overall A hazard ratio}
+\item{hrAoverall }{overall A hazard ratio}
 
-\item{ciA }{95\% confidence interval for the overall A hazard ratio}
+\item{ciAoverall }{95\% confidence interval for the overall A hazard ratio}
 
-\item{loghra }{simple A log hazard ratio}
+\item{loghrAsimple }{simple A log hazard ratio}
 
-\item{sea }{standard error of the simple A log hazard ratio}
+\item{seAsimple }{standard error of the simple A log hazard ratio}
 
-\item{Zstata }{Z-statistic for the simple A log hazard ratio}
+\item{ZstatAsimple }{Z-statistic for the simple A log hazard ratio}
 
-\item{pvala }{two-sided p-value for the simple A hazard ratio}
+\item{pvalAsimple }{two-sided p-value for the simple A hazard ratio}
 
-\item{hra }{simple A hazard ratio}
+\item{hrAsimple }{simple A hazard ratio}
 
-\item{cia }{95\% confidence interval for the simple A hazard ratio}
+\item{ciAsimple }{95\% confidence interval for the simple A hazard ratio}
 
-\item{loghrab }{simple AB log hazard ratio}
+\item{loghrABsimple }{simple AB log hazard ratio}
 
-\item{seab}{standard error of the simple AB log hazard ratio}
+\item{seABsimple}{standard error of the simple AB log hazard ratio}
 
-\item{Zstatab }{Z-statistic for the simple AB log hazard ratio}
+\item{ZstatABsimple }{Z-statistic for the simple AB log hazard ratio}
 
-\item{pvalab }{two-sided p-value for the simple AB hazard ratio}
+\item{pvalABsimple }{two-sided p-value for the simple AB hazard ratio}
 
-\item{hrab }{simple AB hazard ratio}
+\item{hrABsimple }{simple AB hazard ratio}
 
-\item{ciab}{95\% confidence interval for the simple AB hazard ratio}
+\item{ciABsimple }{95\% confidence interval for the simple AB hazard ratio}
 
-\item{crit23A }{2/3-1/3 procedure's critical value for the overall A statistic}
+\item{critEA3_A }{Equal Allocation 3's critical value for the overall A simple A, and simple AB hypotheses}
 
-\item{sig23A }{2/3-1/3 procedure's p-value rejection criterion for the overall A null hypothesis}
+\item{sigEA3_A }{Equal Allocation 3's p-value rejection criterion for the overall A, simple A, and simple AB hypotheses}
 
-\item{crit23ab}{2/3-1/3 procedure's critical value for the simple AB statistic}
+\item{resultEA3_A }{Equal Allocation 3's accept/reject decisions for the overall A, simple A, and simple AB hypotheses}
 
-\item{sig23ab }{2/3-1/3 procedure's p-value rejection criterion for the simple A null hypothesis}
+\item{critPA2overallA }{Proportional Allocation 2's critical value for the overall A statistic}
 
-\item{result23 }{2/3-1/3 procedure's accept/reject decisions for the overall A and simple A null hypotheses results}
+\item{sigPA2overallA }{Proportional Allocation 2's p-value rejection criterion for the overall A hypothesis}
 
-\item{crit13 }{1/3-1/3-1/3 procedure's critical value for all three test statistics}
+\item{critPA2simpleAB}{Proportional Allocation 2's critical value for the simple AB hypothesis}
 
-\item{sig13 }{1/3-1/3-1/3 procedure's p-value rejection criterion for the overall A, simple A, and simple AB null hypotheses}
+\item{sigPA2simpleAB }{Proportional Allocation 2 procedure's p-value rejection criterion for the simple AB hypothesis}
 
-\item{result13 }{1/3-1/3-1/3 procedure's accept/reject decisions for the overall A, simple A, and simple AB null hypotheses results}
+\item{resultPA2_A }{Proportional Allocation 2 procedure's accept/reject decisions for the overall A and simple A hypotheses}
 
-\item{crit12 }{1/2-1/2 procedure's critical value for the simple A and AB statistics}
+\item{critEA2_A }{Equal Allocation 2 procedure's critical value for the simple A and simple AB hypotheses}
 
-\item{sig12 }{1/2-1/2 procedure's p-value rejection criterion for the simple A and simple AB null hypotheses}
+\item{sigEA2_A }{Equal Allocation 2 procedure's p-value rejection criterion for the simple A and simple AB hypotheses}
 
-\item{result12 }{1/2-1/2 procedure's accept/reject decisions for the simple A and simple AB null hypotheses results}
+\item{resultEA2_A }{Equal Allocation 2 procedure's accept/reject decisions for the simple A and simple AB hypotheses }
 
-\item{corAa }{correlation between the overall A and simple A Wald statistics}
+\item{corAa }{correlation between the overall A and simple A logrank statistics}
 
-\item{corAab }{correlation between the overall A and simple AB Wald statistics}
+\item{corAab }{correlation between the overall A and simple AB logrank statistics}
 
-\item{coraab }{correlation between the simple A and simple AB Wald statistics}
+\item{coraab }{correlation between the simple A and simple AB logrank statistics}
 }
 \description{
-Performs significance testing for the 2/3-1/3, 1/3-1/3-1/3, 1/2-1/2 procedures.
+Performs significance testing for the Proportional Allocation 2, Equal Allocation 3,
+Equal Allocation 2 procedures.
 Also reports the hazard ratios, 95\% confidence intervals, p-values,
-nominal significance levels, and correlations for the overall A,
-simple A, and simple AB test statistics.
+nominal significance levels, and correlations for the overall and simple
+test statistics.
+}
+\details{
+For each of the three multiple testing procedures, the critical values for
+the overall A (respectively, simple A) logrank statistics may be slightly different
+from the overall B (respectively, simple B) logrank statistics.  This is
+due to their slightly different correlations with each other (i.e., correlation
+between overall A and simple A, respectively, overall B and simple B,
+statistics) as well as with  the simple AB statistic.
 }
 \examples{
- # First load the simulated data variables. The "simdat" file is
+ # First load the simulated data variables. The "simdataSub" file is
  # a 100-by-9 matrix which is loaded with the factorial2x2 package.
- time <- simdat[, "time"]
- event <- simdat[, "event"]
- indA <- simdat[, "indA"]
- indB <- simdat[, "indB"]
- covmat <- simdat[, 6:10]
+ time <- simdataSub[, "time"]
+ event <- simdataSub[, "event"]
+ indA <- simdataSub[, "indA"]
+ indB <- simdataSub[, "indB"]
+ covmat <- simdataSub[, 6:10]
  fac2x2analyze(time, event, indA, indB, covmat, alpha = 0.05, niter = 5)
 #  $loghrA
 # [1] 0.05613844
@@ -158,34 +167,34 @@ simple A, and simple AB test statistics.
 # $ciab
 # [1] 0.3538265 5.0125010
 
-# $crit23A
+# $critPA2A
 # [1] -2.129
 
-# $sig23A
+# $sigPA2A
 # [1] 0.03325426
 
-# $crit23ab
+# $critPA2ab
 # [1] -2.299
 
-# $sig23ab
+# $sigPA2ab
 # [1] 0.02150494
 
 # $result23
 # [1] "accept overall A" "accept simple AB"
 
-# $crit13
+# $critEA3
 # [1] -2.338
 
-# $sig13
+# $sigEA3
 # [1] 0.01938725
 
 # $result13
 # [1] "accept overall A" "accept simple A"  "accept simple AB"
 
-# $crit12
+# $critEA2
 # [1] -2.216
 
-# $sig12
+# $sigEA2
 # [1] 0.0266915
 
 # $result12
@@ -202,7 +211,12 @@ simple A, and simple AB test statistics.
 }
 \references{
 Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D.
-Joint testing of overall and simple effect for the two-by-two factorial design. (2019). Submitted.
+Joint testing of overall and simple effect for the two-by-two factorial design. (2020). Submitted.
+
+Lin, D-Y., Gong, J., Gallo, P., et al. Simultaneous inference on treatment effects
+in survival studies with factorial designs. Biometrics. 2016; 72: 1078-1085.
+
+Slud, E.V. Analysis of factorial survival experiments. Biometrics. 1994; 50: 25-38.
 }
 \author{
 Eric Leifer, James Troendle

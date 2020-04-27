@@ -57,7 +57,7 @@ use 0/1 indicator variables}
 }
 \description{
 Computes  the hazard ratios, confidence intervals, p-values, and correlations
-for the overall A, simple A, and simple AB test statistics.
+for the overall A, simple A, and simple AB logrank statistics.
 }
 \details{
 This function computes

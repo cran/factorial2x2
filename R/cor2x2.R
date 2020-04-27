@@ -1,7 +1,7 @@
 #'  Hazard ratios and correlations for the 2x2 statistics
 #'
 #' Computes  the hazard ratios, confidence intervals, p-values, and correlations
-#' for the overall A, simple A, and simple AB test statistics.
+#' for the overall A, simple A, and simple AB logrank statistics.
 #' @param time follow-up times
 #' @param event event indicators (0/1)
 #' @param indA treatment A indicators (0/1)
@@ -394,9 +394,27 @@ for(i in 1:ntrt11){
 # correlation between the simple A and AB statistics
 	coraab <- covBGmatAAB[1,1]/(invA[1,1] * invAB[1,1])^(1/2)
 
+# New as of 2/20/2020
+# Want to compute the interaction and its p-value
+# Fit the Cox model for the overall (i.e., stratified) statistic.
+# We need to remove the indA column from covmat, which was put there
+# in the second line of this function.
+	covmat <- covmat[, 2:ncol(covmat)]
+	fit <- coxph(Surv(time, event) ~ indA + indB + indA * indB +
+	             covmat, method = "breslow")
+	fullvar <- fit$var
+	aux <- length(fit$coef)
+# A*B interaction quantities
+	lhrABint <-   fit$coef[aux]
+	hrABint <- exp(fit$coef[aux])
+	seABint <- sqrt(fit$var[aux, aux])
+	ciABint <- exp(lhrABint + 1.96 * c(-seABint, seABint))
+	pvalABint <- 2 *  (1 - pnorm(abs(lhrABint/seABint)))
+
 	list(loghrA = loghrA, seA = seA, hrA = hrA, ciA = ciA, pvalA = pvalA,
 		   loghra = loghra, sea = sea, hra = hra, cia = cia, pvala = pvala,
 		   loghrab = loghrab, seab = seab, hrab = hrab, ciab = ciab, pvalab = pvalab,
-		   corAa = corAa, corAab = corAab, coraab = coraab)
+		   corAa = corAa, corAab = corAab, coraab = coraab, hrABint = hrABint,
+		   seABint = seABint, ciABint = ciABint, pvalABint = pvalABint)
 }
 

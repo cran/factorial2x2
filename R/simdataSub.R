@@ -16,7 +16,7 @@
 #'
 #' @docType data
 #' @keywords datasets
-#' @name simdat
-#' @usage data(simdat)
+#' @name simdataSub
+#' @usage data(simdataSub)
 #' @format A data frame with 100 rows and 10 variables
 NULL

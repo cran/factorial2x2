@@ -24,7 +24,11 @@ for two group comparison.
 }
 \details{
 Uses the formula at the bottom of p.317 from Schoenfeld (Biometrika, 1981)
-where the beta should be 1 - beta.
+where the beta should be 1 - beta.  The formula is modified
+to assume that values of the hazard ratio
+less than 1 correspond to treatment efficacy.  We do this because we only want
+to include the probability of rejecting the null in favor of efficacy, not inferiority
+as well.
 }
 \examples{
  hr <- 0.5

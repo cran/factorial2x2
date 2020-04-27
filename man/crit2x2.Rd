@@ -2,13 +2,22 @@
 % Please edit documentation in R/crit2x2.R
 \name{crit2x2}
 \alias{crit2x2}
-\title{Critical values for the 2/3-1/3, 1/3-1/3-1/3, and 1/2-1/2 procedures}
+\title{Critical values for the Equal Allocation 3, Proportional Allocation 2,
+and Equal Allocation 2 procedures}
 \usage{
-crit2x2(corAa, corAab, coraab, dig = 2, alpha = 0.05, niter = 5,
-  abseps = 1e-05, tol = 1e-04)
+crit2x2(
+  corAa,
+  corAab,
+  coraab,
+  dig = 2,
+  alpha = 0.05,
+  niter = 5,
+  abseps = 1e-05,
+  tol = 1e-04
+)
 }
 \arguments{
-\item{corAa}{correlation between the overall A and simple A  log hazard ratio estimates}
+\item{corAa}{correlation between the overall A and simple A log hazard ratio estimates}
 
 \item{corAab}{correlation between the overall A and simple AB log hazard ratio estimates}
 
@@ -26,22 +35,26 @@ the randomness from the \code{pmvnorm} function call}
 \item{tol}{\code{tol} setting in the uniroot function call}
 }
 \value{
-\item{crit23A }{2/3-1/3 procedure's critical value for the overall A statistic}
-\item{sig23A }{two-sided nominal significance level corresponding to \code{crit23A}}
-\item{crit23ab }{2/3-1/3 procedure's critical value for the simple AB statistic}
-\item{sig23ab }{two-sided nominal significance level corresponding to \code{crit23ab}}
-\item{crit13 }{1/3-1/3-1/3 procedure's critical value for all three test statistics}
-\item{sig13 }{two-sided nominal significance level corresponding to \code{crit13}}
-\item{crit12 }{1/2-1/2 procedure's critical value for the simple A and AB statistics}
-\item{sig12 }{two-sided nominal significance level corresponding to \code{crit12}}
+\item{critEA3 }{Equal Allocation 3 procedure's critical value for all three test statistics}
+\item{sigEA3 }{two-sided nominal significance level corresponding to \code{critEA3}}
+\item{critPA2A }{Proportional Allocation 2 procedure's critical value for the overall A statistic}
+\item{sigPA2A }{two-sided nominal significance level corresponding to \code{critPA2A}}
+\item{critPA2ab }{Proportional Allocation 2 procedure's critical value for the simple AB statistic}
+\item{sigPA2ab }{two-sided nominal significance level corresponding to \code{critPA2ab}}
+\item{critEA2 }{Equal Allocation 2 procedure's critical value for the simple A and AB statistics}
+\item{sigEA2 }{two-sided nominal significance level corresponding to \code{critEA2}}
 }
 \description{
 Computes  the critical values
 for null hypotheses rejection and corresponding nominal two-sided significance
-levels for the 2/3-1/3, 1/3-1/3-1/3, and 1/2-1/2 procedures.
+levels for the Equal Allocation 3, Proportional Allocation 2,
+and Equal Allocation 2 procedures
 }
 \details{
-\code{pmvnorm} uses a random seed in its algorithm.
+This function computes the Dunnett-corrected critical values
+based on the asymptotic correlations of the overall A, simple A, and simple AB
+logrank statistics as described in Leifer, Troendle, et al. (2020) and are derived in
+Lin, Gong, et al. (2016) and Slud (1994).  \code{pmvnorm} uses a random seed in its algorithm.
 To smooth out the randomness,  \code{pmvnorm} is called \code{niter} times.
 The \code{roundDown} function is used in conjunction with the \code{dig} argument
 to insure that any rounding of the (negative) critical values will be done conservatively to control
@@ -55,28 +68,28 @@ corAab <- 1/sqrt(2)
 coraab <- 1/2
 
 crit2x2(corAa, corAab, coraab, dig = 2, alpha = 0.05, niter = 5)
-# crit23A
-# [1] -2.13
-
-# sig23A
-# [1] 0.03317161
-
-# crit23ab
-# [1] -2.24
-
-# sig23ab
-# [1] 0.02509092
-
-# crit13
+# critEA3
 # [1] -2.32
 
-# sig13
+# sigEA3
 # [1] 0.02034088
 
-# crit12
+# critPA2A
+# [1] -2.13
+
+# sigPA2A
+# [1] 0.03317161
+
+# critPA2ab
+# [1] -2.24
+
+# sigPA2ab
+# [1] 0.02509092
+
+# critEA2
 # [1] -2.22
 
-# sig12
+# sigEA2
 # [1] 0.02641877
 
 # Example 2:  Compute the nominal critical values and significance levels for rejection
@@ -86,29 +99,36 @@ corAab <- 0.5675396
 coraab <- 0.4642737
 
 crit2x2(corAa, corAab, coraab, dig = 2, alpha = 0.05, niter = 5)
-# $crit23A
+# $critEA3
+# [1] -2.34
+
+# $critPA2A
 # [1] -2.13
 
-# $sig23A
+# $sigPA2A
 # [1] 0.03317161
 
-# $crit23ab
+# $critPA2ab
 # [1] -2.3
 
-# $sig23ab
+# $sigPA2ab
 # [1] 0.02144822
 #
-# $crit13
-# [1] -2.34
-# $sig13
+# $sigEA3
 # [1] 0.01928374
 
-# $crit12
+# $critEA2
 # [1] -2.22
+
+# $sigEA2
+# [1] 0.02641877
 }
 \references{
 Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D.
-Joint testing of overall and simple effect for the two-by-two factorial design. 2019. Submitted.
+Joint testing of overall and simple effect for the two-by-two factorial design. 2020. Submitted.
+
+Lin, D-Y., Gong, J., Gallo, P., et al. Simultaneous inference on treatment effects
+in survival studies with factorial designs. Biometrics. 2016; 72: 1078-1085.
 
 Slud, E.V. Analysis of factorial survival experiments. Biometrics. 1994; 50: 25-38.
 }

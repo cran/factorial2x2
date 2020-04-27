@@ -4,7 +4,9 @@
 \name{simdata}
 \alias{simdata}
 \title{Simulated 2x2 factorial trial data}
-\format{A data frame with 4600 rows and 10 variables}
+\format{
+A data frame with 4600 rows and 10 variables
+}
 \usage{
 data(simdata)
 }

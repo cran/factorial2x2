@@ -1,11 +1,13 @@
-#' Critical values for the 2/3-1/3, 1/3-1/3-1/3, and 1/2-1/2 procedures
+#' Critical values for the Equal Allocation 3, Proportional Allocation 2,
+#' and Equal Allocation 2 procedures
 #'
 #' Computes  the critical values
 #' for null hypotheses rejection and corresponding nominal two-sided significance
-#' levels for the 2/3-1/3, 1/3-1/3-1/3, and 1/2-1/2 procedures.
+#' levels for the Equal Allocation 3, Proportional Allocation 2,
+#' and Equal Allocation 2 procedures
 #'
 #'
-#' @param corAa  correlation between the overall A and simple A  log hazard ratio estimates
+#' @param corAa  correlation between the overall A and simple A log hazard ratio estimates
 #' @param corAab  correlation between the overall A and simple AB log hazard ratio estimates
 #' @param coraab  correlation between the simple A and simple AB log hazard ratio estimates
 #' @param niter  number of times we compute the critical values to average out
@@ -16,22 +18,27 @@
 #' @param tol  \code{tol} setting in the uniroot function call
 #'
 #' @return
-#' \item{crit23A }{2/3-1/3 procedure's critical value for the overall A statistic}
-#' \item{sig23A }{two-sided nominal significance level corresponding to \code{crit23A}}
-#' \item{crit23ab }{2/3-1/3 procedure's critical value for the simple AB statistic}
-#' \item{sig23ab }{two-sided nominal significance level corresponding to \code{crit23ab}}
-#' \item{crit13 }{1/3-1/3-1/3 procedure's critical value for all three test statistics}
-#' \item{sig13 }{two-sided nominal significance level corresponding to \code{crit13}}
-#' \item{crit12 }{1/2-1/2 procedure's critical value for the simple A and AB statistics}
-#' \item{sig12 }{two-sided nominal significance level corresponding to \code{crit12}}
+#' \item{critEA3 }{Equal Allocation 3 procedure's critical value for all three test statistics}
+#' \item{sigEA3 }{two-sided nominal significance level corresponding to \code{critEA3}}
+#' \item{critPA2A }{Proportional Allocation 2 procedure's critical value for the overall A statistic}
+#' \item{sigPA2A }{two-sided nominal significance level corresponding to \code{critPA2A}}
+#' \item{critPA2ab }{Proportional Allocation 2 procedure's critical value for the simple AB statistic}
+#' \item{sigPA2ab }{two-sided nominal significance level corresponding to \code{critPA2ab}}
+#' \item{critEA2 }{Equal Allocation 2 procedure's critical value for the simple A and AB statistics}
+#' \item{sigEA2 }{two-sided nominal significance level corresponding to \code{critEA2}}
 #'
-#' @details \code{pmvnorm} uses a random seed in its algorithm.
+#' @details This function computes the Dunnett-corrected critical values
+#' based on the asymptotic correlations of the overall A, simple A, and simple AB
+#' logrank statistics as described in Leifer, Troendle, et al. (2020) and are derived in
+#' Lin, Gong, et al. (2016) and Slud (1994).  \code{pmvnorm} uses a random seed in its algorithm.
 #' To smooth out the randomness,  \code{pmvnorm} is called \code{niter} times.
 #' The \code{roundDown} function is used in conjunction with the \code{dig} argument
 #' to insure that any rounding of the (negative) critical values will be done conservatively to control
 #' the familywise type I error at the desired level.
 #' @references Leifer, E.S., Troendle, J.F., Kolecki, A., Follmann, D.
-#' Joint testing of overall and simple effect for the two-by-two factorial design. 2019. Submitted.
+#' Joint testing of overall and simple effect for the two-by-two factorial design. 2020. Submitted.
+#' @references Lin, D-Y., Gong, J., Gallo, P., et al. Simultaneous inference on treatment effects
+#' in survival studies with factorial designs. Biometrics. 2016; 72: 1078-1085.
 #' @references Slud, E.V. Analysis of factorial survival experiments. Biometrics. 1994; 50: 25-38.
 #' @export crit2x2
 #' @seealso \code{roundDown}. \code{eventProb}, \code{lgrkPower}, \code{strLgrkPower}, \code{pmvnorm}
@@ -44,28 +51,28 @@
 #' coraab <- 1/2
 #'
 #' crit2x2(corAa, corAab, coraab, dig = 2, alpha = 0.05, niter = 5)
-#' # crit23A
-#' # [1] -2.13
-#'
-#' # sig23A
-#' # [1] 0.03317161
-#'
-#' # crit23ab
-#' # [1] -2.24
-#'
-#' # sig23ab
-#' # [1] 0.02509092
-#'
-#' # crit13
+#' # critEA3
 #' # [1] -2.32
 #'
-#' # sig13
+#' # sigEA3
 #' # [1] 0.02034088
 #'
-#' # crit12
+#' # critPA2A
+#' # [1] -2.13
+#'
+#' # sigPA2A
+#' # [1] 0.03317161
+#'
+#' # critPA2ab
+#' # [1] -2.24
+#'
+#' # sigPA2ab
+#' # [1] 0.02509092
+#'
+#' # critEA2
 #' # [1] -2.22
 #'
-#' # sig12
+#' # sigEA2
 #' # [1] 0.02641877
 #'
 #' # Example 2:  Compute the nominal critical values and significance levels for rejection
@@ -75,27 +82,29 @@
 #' coraab <- 0.4642737
 #'
 #' crit2x2(corAa, corAab, coraab, dig = 2, alpha = 0.05, niter = 5)
-#' # $crit23A
+#' # $critEA3
+#' # [1] -2.34
+#'
+#' # $critPA2A
 #' # [1] -2.13
 #'
-#' # $sig23A
+#' # $sigPA2A
 #' # [1] 0.03317161
 #'
-#' # $crit23ab
+#' # $critPA2ab
 #' # [1] -2.3
 #'
-#' # $sig23ab
+#' # $sigPA2ab
 #' # [1] 0.02144822
 #' #
-#' # $crit13
-#' # [1] -2.34
-
-#' # $sig13
+#' # $sigEA3
 #' # [1] 0.01928374
 #'
-#' # $crit12
+#' # $critEA2
 #' # [1] -2.22
-
+#'
+#' # $sigEA2
+#' # [1] 0.02641877
 
 crit2x2 <- function(corAa, corAab, coraab, dig = 2,
 	alpha = 0.05,  niter = 5,  abseps = 1e-05, tol = 1e-04){
@@ -103,7 +112,7 @@ crit2x2 <- function(corAa, corAab, coraab, dig = 2,
   # the output from the cor2x2 function.
   # NOTE:  increasing niter will slow down the function
 # This function computes the critical values for the
-# 2/3-1/3, 1/3-1/3-1/3, and 1/2-1/2 procedures, respectively.
+# Proportional Allocation 2, Equal Allocation 3, and Equal Allocation 2 procedures, respectively.
 # We have parametrized the problem so that large negative Z values
 # are rejected.
 # The inputs are:
@@ -127,22 +136,22 @@ crit2x2 <- function(corAa, corAab, coraab, dig = 2,
 # set.seed(rseed)
 
 # Initialize the results vectors.
-	sig23A <- rep(0, niter)
-	crit23A <- rep(0, niter)
-	sig23ab <- rep(0, niter)
-	crit23ab <- rep(0, niter)
-	sig13 <- rep(0, niter)
-	crit13 <- rep(0, niter)
-	sig12 <- rep(0, niter)
-	crit12 <- rep(0, niter)
+	sigPA2A <- rep(0, niter)
+	critPA2A <- rep(0, niter)
+	sigPA2ab <- rep(0, niter)
+	critPA2ab <- rep(0, niter)
+	sigEA3 <- rep(0, niter)
+	critEA3 <- rep(0, niter)
+	sigEA2 <- rep(0, niter)
+	critEA2 <- rep(0, niter)
 
 	for(i in 1:niter){
-# Compute the critical values for the 2/3-1/3 procedure.
+# Compute the critical values for the Proportional Allocation 2 procedure.
 # Obtain the two-sided nominal significance level for the overall A test.
-	sig23A[i] <- 2*alpha/3
+	sigPA2A[i] <- 2*alpha/3
 
 # Obtain the critical for the overall A test
-	crit23A[i] <- qnorm(alpha/3)
+	critPA2A[i] <- qnorm(alpha/3)
 
 # Obtain the two-sided nominal significance level for the simple AB test.
 	cormat23 <- matrix(c(1, corAab, corAab, 1), byrow = TRUE, nrow = 2)
@@ -153,14 +162,14 @@ crit2x2 <- function(corAa, corAab, coraab, dig = 2,
                		corr=cormat23, sigma=NULL, maxpts = 25000,
 				abseps = abseps, releps = 0)) - alpha/2
 	}
-	sig23ab[i] <- 2 * uniroot(auxfcn23, lower = alpha/6,
+	sigPA2ab[i] <- 2 * uniroot(auxfcn23, lower = alpha/6,
 						upper = alpha/2, tol = tol)$root
 
 # Obtain the critical value for the simple AB test
-	crit23ab[i] <- qnorm(sig23ab[i]/2)
+	critPA2ab[i] <- qnorm(sigPA2ab[i]/2)
 
 # Obtain the two-sided nominal significance level for all 3 tests for the
-#	1/3-1/3-1/3 procedure.
+#	Equal Allocation 3 procedure.
 
 	cormat13 <- matrix(c(1, corAa, corAab,
                     	corAa, 1, coraab,
@@ -172,30 +181,30 @@ crit2x2 <- function(corAa, corAab, coraab, dig = 2,
        	 releps = 0)) - alpha
 	}
 # 	set.seed(rseed)
-	sig13[i] <- 2 * uniroot(auxfcn13, lower = alpha/6,
+	sigEA3[i] <- 2 * uniroot(auxfcn13, lower = alpha/6,
 						upper = alpha/2, tol = tol)$root
-# Obtain the critical value for each of the three tests in the 1/3-1/3-1/3
+# Obtain the critical value for each of the three tests in the Equal Allocation 3
 # procedure.
-	crit13[i] <- qnorm(sig13[i]/2)
+	critEA3[i] <- qnorm(sigEA3[i]/2)
 
 # Obtain the two-sided nominal significance level for each test of the
-#	1/2-1/2 procedure.
+#	Equal Allocation 2 procedure.
 	cormat12 <- matrix(c(1, coraab, coraab, 1), byrow = TRUE, nrow = 2)
 	auxfcn12 <- function(z, tol = tol){
   				(1 - pmvnorm(lower=-Inf, upper=-c(qnorm(z),
 					qnorm(z)), mean=c(0,0),
                			corr=cormat12, sigma=NULL, maxpts = 25000,
-					abseps = abseps, releps = 0)) - 0.025
+					abseps = abseps, releps = 0)) - alpha/2  ### I FIXED THIS LINE, subtract alpha/2, not 0.025
 			}
 #	set.seed(rseed)
-	sig12[i] <- 2 * uniroot(auxfcn12, lower = alpha/6,
+	sigEA2[i] <- 2 * uniroot(auxfcn12, lower = alpha/6,
 						upper = alpha, tol = tol)$root
-# Obtain the critical value for each test in the 1/2-1/2
+# Obtain the critical value for each test in the Equal Allocation 2
 # procedure.
-	crit12[i] <- qnorm(sig12[i]/2)
+	critEA2[i] <- qnorm(sigEA2[i]/2)
 	}
-	resultsmat <- cbind(sig23A, crit23A, sig23ab, crit23ab, sig13,
-					crit13, sig12, crit12)
+	resultsmat <- cbind(sigPA2A, critPA2A, sigPA2ab, critPA2ab, sigEA3,
+					critEA3, sigEA2, critEA2)
 	dimnames(resultsmat)[[2]] <- NULL
 	aux <- apply(resultsmat, 2, mean)
 # apply roundDown to the critical values for CONSERVATISM
@@ -206,10 +215,10 @@ crit2x2 <- function(corAa, corAab, coraab, dig = 2,
 	for(i in c(1, 3, 5, 7)){
 	  aux[i] <- 2 * pnorm(aux[i + 1])
 	}
-	list(crit23A = aux[2], sig23A = aux[1],
-	  crit23ab = aux[4], sig23ab = aux[3],
-		crit13 = aux[6], sig13 = aux[5],
-		crit12 = aux[8], sig12 = aux[7])
+	list(critEA3 = aux[6], sigEA3 = aux[5],
+		critPA2A = aux[2], sigPA2A = aux[1],
+		critPA2ab = aux[4], sigPA2ab = aux[3],
+		critEA2 = aux[8], sigEA2 = aux[7])
 }
 
 

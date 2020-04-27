@@ -2,11 +2,25 @@
 % Please edit documentation in R/fac2x2design.R
 \name{fac2x2design}
 \alias{fac2x2design}
-\title{Power for the 2/3-1/3, 1/3-1/3-1/3, 1/2-1/2 procedures}
+\title{Power for the Equal Allocation 3, Proportional Allocation 2, and
+Equal Allocation 2 procedures.}
 \usage{
-fac2x2design(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2,
-  alpha = 0.05, niter = 5, abseps = 0.001, corAa = 1/sqrt(2),
-  corAab = 1/sqrt(2), coraab = 1/2)
+fac2x2design(
+  n,
+  rateC,
+  hrA,
+  hrB,
+  hrAB,
+  mincens,
+  maxcens,
+  dig = 2,
+  alpha = 0.05,
+  niter = 5,
+  abseps = 0.001,
+  corAa = 1/sqrt(2),
+  corAab = 1/sqrt(2),
+  coraab = 1/2
+)
 }
 \arguments{
 \item{n}{total sample size}
@@ -35,30 +49,39 @@ fac2x2design(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2,
 
 \item{corAab}{correlation between the overall A and simple AB log hazard ratio estimates}
 
-\item{coraab}{correalation between the simple A and simple AB log hazard ratio estimates}
+\item{coraab}{correlation between the simple A and simple AB log hazard ratio estimates}
 }
 \value{
-\item{powerA}{power to detect the overall A effect at the two-sided \code{alpha} level}
-
-\item{powerB}{power to detect the overall B effect at the two-sided \code{alpha} level}
-
-\item{power23.13 }{power to detect the overall A or simple AB effects using the 2/3-1/3 procedure}
-
-\item{power13.13.13 }{power to detect the overall A, simple A,  or simple AB effects using
-the 1/3-1/3-1/3 procedure}
-
-\item{power12.12 }{power to detect the simple A or simple AB effects using
-the 1/2-1/2 procedure}
-
 \item{events}{expected number of events}
 
 \item{evtprob}{event probabilities for the C, A, B, and AB groups, respectively}
+
+\item{powerEA3overallA }{Equal Allocation 3's power to detect the overall A effect}
+
+\item{powerEA3simpleA }{Equal Allocation 3's power to detect the simple A effect}
+
+\item{powerEA3simpleAB }{Equal Allocation 3's power to detect the simple AB effect}
+
+\item{powerEA3anyA }{Equal Allocation 3's power to detect the simple A or AB effects}
+
+\item{powerPA2overallA }{Proportional Allocation 2's power to detect the overall A effect}
+
+\item{powerPA2simpleAB }{Proportional Allocation 2's power to detect the simple AB effect}
+
+\item{powerEA2simpleA }{Equal Allocation 2's power to detect the simple A effect}
+
+\item{powerEA2simpleAB }{Equal Allocation 2's power to detect the simple AB effect}
+
+\item{powerA}{power to detect the overall A effect at the two-sided \code{alpha} level}
+
+\item{powerB}{power to detect the overall B effect at the two-sided \code{alpha} level}
 }
 \description{
-Power for the 2/3-1/3, 1/3-1/3-1/3, 1/2-1/2 procedures
+Power for the Equal Allocation 3, Proportional Allocation 2, and
+Equal Allocation 2 procedures.
 }
 \examples{
-# Corresponds to scenario 5 in Table 2 from Leifer, Troendle, et al. (2019).
+# Corresponds to scenario 4 in Table 2 from Leifer, Troendle, et al. (2019).
 n <- 4600
 rateC <- 0.0445
 hrA <- 0.80
@@ -68,27 +91,41 @@ mincens <- 4.0
 maxcens <- 8.4
 
 fac2x2design(n, rateC, hrA, hrB, hrAB, mincens, maxcens, dig = 2, alpha = 0.05, niter = 1)
-# $powerA
-# [1] 0.7182932
-
-# $powerB
-# [1] 0.7182932
-
-# $power23.13
-# [1] 0.9290062
-
-# $power13.13.13
-# [1] 0.9302078
-
-# $power12.12
-# [1] 0.9411688
-
 # $events
 # [1] 954.8738
 
 # $evtprob
 # probC     probA     probB    probAB
 # 0.2446365 0.2012540 0.2012540 0.1831806
+
+# $powerEA3overallA
+# [1] 0.5861992
+
+# $powerEA3simpleA
+# [1] 0.5817954
+
+# $powerEA3simplAB
+# [1] 0.9071236
+
+# $powerEA3anyA
+# [1] 0.7060777
+# $powerPA2overallA
+# [1] 0.6582819
+
+# $powerPA2simpleAB
+# [1] 0.9197286
+
+# $powerEA2simpleA
+# [1] 0.6203837
+#
+# $powerEA2simpleAB
+# [1] 0.9226679
+
+# $powerA
+# [1] 0.7182932
+
+# $powerB
+# [1] 0.7182932
 
 }
 \references{
@@ -98,6 +135,7 @@ Joint testing of overall and simple effect for the two-by-two factorial design. 
 Slud, E.V. Analysis of factorial survival experiments. Biometrics. 1994; 50: 25-38.
 }
 \seealso{
-\code{\link{eventProb}}, \code{\link{crit2x2}}, \code{\link{strLgrkPower}}
-\code{\link{power23_13}}, \code{\link{power13_13_13}}, \code{\link{power12_12}}
+\code{\link{eventProb}}, \code{\link{crit2x2}}, \code{\link{lgrkPower}}
+\code{\link{strLgrkPower}}, \code{\link{powerEA3}}, \code{\link{powerPA2}},
+\code{\link{powerEA2}}
 }
